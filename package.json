@@ -1,0 +1,9 @@
+{
+  "name": "ittek-solution",
+  "version": "1.0.0",
+  "description": "ITTEK SOLUTION - DAN & DOR SOLAR COMPANY LIMITED",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
+    "start": "cd backend && node server.js"
+  }
+}
