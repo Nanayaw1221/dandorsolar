@@ -34,7 +34,7 @@ export default function AuditLogs() {
       if (filters.startDate) params.append('startDate', filters.startDate);
       if (filters.endDate) params.append('endDate', filters.endDate);
       const data = await api.get(`/audit-logs?${params}`);
-      let list = data?.logs || data?.data || data || [];
+      let list = Array.isArray(data?.data) ? data.data : [];
       // CEO sees all except Super Admin actions
       if (!isSuperAdmin) {
         list = list.filter(l => l.userRole !== 'Super Admin');

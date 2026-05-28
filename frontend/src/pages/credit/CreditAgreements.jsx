@@ -44,7 +44,7 @@ export default function CreditAgreements() {
     setLoading(true);
     try {
       const data = await api.get('/credit-agreements');
-      setAgreements(data?.agreements || data || []);
+      setAgreements(Array.isArray(data?.data) ? data.data : []);
     } catch { setAgreements([]); } finally { setLoading(false); }
   };
 

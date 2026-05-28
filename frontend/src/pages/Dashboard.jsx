@@ -36,15 +36,16 @@ export default function Dashboard() {
         api.get('/dashboard/recent-activity').catch(() => ({ data: [] })),
       ]);
 
+      const sd = statsData?.data || statsData || {};
       setStats({
-        todaySales: statsData?.todaySales || 0,
-        monthlySales: statsData?.monthlySales || 0,
-        totalProducts: statsData?.totalProducts || 0,
-        lowStock: statsData?.lowStock || 0,
-        todayExpenses: statsData?.todayExpenses || 0,
-        outstandingDebts: statsData?.outstandingDebts || 0,
-        myTodaySales: statsData?.myTodaySales || 0,
-        myTodayExpenses: statsData?.myTodayExpenses || 0,
+        todaySales: sd?.todaySales || 0,
+        monthlySales: sd?.monthlySales || 0,
+        totalProducts: sd?.totalProducts || 0,
+        lowStock: sd?.lowStock || 0,
+        todayExpenses: sd?.todayExpenses || 0,
+        outstandingDebts: sd?.outstandingDebts || 0,
+        myTodaySales: sd?.myTodaySales || 0,
+        myTodayExpenses: sd?.myTodayExpenses || 0,
       });
 
       const chart = chartData?.data || chartData || [];

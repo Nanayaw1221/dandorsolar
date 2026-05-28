@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (credentials) => {
     const response = await api.post('/auth/login', credentials)
-    const { token, user: userData } = response.data.data
+    const { token, user: userData } = response.data
 
     if (!token || !userData) {
       throw new Error('Invalid response from server')

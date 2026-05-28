@@ -38,7 +38,7 @@ export default function Expenses() {
       if (filterStart) params.append('startDate', filterStart);
       if (filterEnd) params.append('endDate', filterEnd);
       const data = await api.get(`/expenses?${params}`);
-      const list = data?.expenses || data || [];
+      const list = Array.isArray(data?.data) ? data.data : [];
       setExpenses(list);
       const now = new Date();
       const thisMonth = list.filter(e => {

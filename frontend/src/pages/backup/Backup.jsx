@@ -16,7 +16,7 @@ export default function Backup() {
     setLoading(true);
     try {
       const data = await api.get('/backups');
-      setBackups(data?.backups || data || []);
+      setBackups(Array.isArray(data?.data) ? data.data : []);
     } catch { setBackups([]); } finally { setLoading(false); }
   };
 

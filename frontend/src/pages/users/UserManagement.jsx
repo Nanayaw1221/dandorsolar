@@ -37,7 +37,7 @@ export default function UserManagement() {
     setLoading(true);
     try {
       const data = await api.get('/users');
-      let list = data?.users || data || [];
+      let list = Array.isArray(data?.data) ? data.data : [];
       if (!isSuperAdmin) {
         list = list.filter(u => u.role === 'Manager' || u.role === 'Sales');
       }

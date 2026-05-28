@@ -16,7 +16,7 @@ export default function Financial() {
     setLoading(true);
     try {
       const result = await api.get(`/financial/${activeTab}`);
-      setData(result);
+      setData(result?.data || result);
     } catch {
       setData(null);
     } finally { setLoading(false); }

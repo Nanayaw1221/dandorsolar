@@ -16,19 +16,62 @@ export default function Settings() {
 
   const fetchSettings = async () => {
     try {
-      const data = await api.get('/settings');
-      if (data?.company) setCompany(data.company);
-      if (data?.notifications) setNotifications(data.notifications);
-      if (data?.email) setEmailConfig(data.email);
+      const res = await api.get('/settings');
+      const s = res?.data;
+      if (!s) return;
+      setCompany({
+        name: s.company_name || 'DAN & DOR SOLAR COMPANY LIMITED',
+        address: s.company_address || '',
+        phone: s.company_phone || '',
+        email: s.company_email || '',
+        logo: s.logo_url || '',
+      });
+      setNotifications({
+        lowStockThreshold: s.low_stock_alert || 10,
+        debtDueDaysAlert: 7,
+        emailAlerts: s.notification_settings?.email_notifications || false,
+      });
+      setEmailConfig({
+        smtpHost: s.email_config?.smtp_host || '',
+        smtpPort: s.email_config?.smtp_port || 587,
+        smtpUser: s.email_config?.smtp_user || '',
+        smtpPass: s.email_config?.smtp_pass || '',
+        fromEmail: s.email_config?.from_email || '',
+      });
     } catch { }
   };
 
   const handleSave = async (section) => {
     setSaving(true);
     try {
-      const payload = section === 'company' ? { company } : section === 'notifications' ? { notifications } : { email: emailConfig };
+      let payload = {};
+      if (section === 'company') {
+        payload = {
+          company_name: company.name,
+          company_address: company.address,
+          company_phone: company.phone,
+          company_email: company.email,
+          logo_url: company.logo,
+        };
+      } else if (section === 'notifications') {
+        payload = {
+          low_stock_alert: notifications.lowStockThreshold,
+          notification_settings: { email_notifications: notifications.emailAlerts },
+        };
+      } else {
+        payload = {
+          email_config: {
+            smtp_host: emailConfig.smtpHost,
+            smtp_port: emailConfig.smtpPort,
+            smtp_user: emailConfig.smtpUser,
+            smtp_pass: emailConfig.smtpPass,
+            from_email: emailConfig.fromEmail,
+            enabled: true,
+          },
+        };
+      }
       await api.put('/settings', payload);
-      toast.success('Settings saved');
+      toast.success('Settings saved successfully');
     } catch (err) { toast.error(err?.message || 'Failed to save settings'); } finally { setSaving(false); }
   };
 

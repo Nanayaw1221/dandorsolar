@@ -38,8 +38,8 @@ export default function StockRequests() {
         api.get('/stock-requests').catch(() => []),
         api.get('/products').catch(() => []),
       ]);
-      setRequests(r?.requests || r || []);
-      setProducts(p?.products || p || []);
+      setRequests(Array.isArray(r?.data) ? r.data : []);
+      setProducts(Array.isArray(p?.data) ? p.data : []);
     } catch { } finally { setLoading(false); }
   };
 

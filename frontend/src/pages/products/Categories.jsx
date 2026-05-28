@@ -22,7 +22,7 @@ export default function Categories() {
     setLoading(true);
     try {
       const data = await api.get('/categories');
-      setCategories(data?.categories || data || []);
+      setCategories(Array.isArray(data?.data) ? data.data : []);
     } catch { setCategories([]); } finally { setLoading(false); }
   };
 

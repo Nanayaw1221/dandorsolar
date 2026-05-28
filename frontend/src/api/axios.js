@@ -22,20 +22,18 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor - handle 401
+// Response interceptor - unwrap data and handle 401
 api.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear auth data
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      // Redirect to login
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
     }
-    return Promise.reject(error)
+    return Promise.reject(error.response?.data || { message: 'Network error' })
   }
 )
 

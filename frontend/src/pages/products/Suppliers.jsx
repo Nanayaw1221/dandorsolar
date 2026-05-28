@@ -22,7 +22,7 @@ export default function Suppliers() {
     setLoading(true);
     try {
       const data = await api.get('/suppliers');
-      setSuppliers(data?.suppliers || data || []);
+      setSuppliers(Array.isArray(data?.data) ? data.data : []);
     } catch { setSuppliers([]); } finally { setLoading(false); }
   };
 

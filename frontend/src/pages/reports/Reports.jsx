@@ -25,7 +25,7 @@ export default function Reports() {
     try {
       const params = `?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
       const result = await api.get(`/reports/${activeReport}${params}`);
-      setData(result);
+      setData(result?.data || result);
     } catch (err) {
       // Show empty state
     } finally { setLoading(false); }

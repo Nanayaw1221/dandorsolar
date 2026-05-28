@@ -35,9 +35,9 @@ export default function Purchases() {
         api.get('/suppliers').catch(() => []),
         api.get('/products').catch(() => []),
       ]);
-      setPurchases(p?.purchases || p || []);
-      setSuppliers(s?.suppliers || s || []);
-      setProducts(pr?.products || pr || []);
+      setPurchases(Array.isArray(p?.data) ? p.data : []);
+      setSuppliers(Array.isArray(s?.data) ? s.data : []);
+      setProducts(Array.isArray(pr?.data) ? pr.data : []);
     } catch { } finally { setLoading(false); }
   };
 

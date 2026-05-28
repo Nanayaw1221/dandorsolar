@@ -34,7 +34,7 @@ export default function Debts() {
     setLoading(true);
     try {
       const data = await api.get('/debts');
-      const list = data?.debts || data || [];
+      const list = Array.isArray(data?.data) ? data.data : [];
       setDebts(list);
       const outstanding = list.filter(d => (d.remaining || 0) > 0);
       const overdue = outstanding.filter(d => d.dueDate && new Date(d.dueDate) < new Date());

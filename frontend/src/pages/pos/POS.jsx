@@ -77,46 +77,70 @@ export default function POS() {
   const handleCompleteSale = async () => {
     if (cart.length === 0) { toast.error('Cart is empty'); return; }
     const received = parseFloat(amountReceived || 0);
-    if (received < total) { toast.error(`Amount received is less than total`); return; }
+    if (received < total) { toast.error('Amount received is less than total due'); return; }
     setLoading(true);
     try {
-      const saleData = {
-        items: cart.map(i => ({ product: i._id, name: i.name, qty: i.qty, price: i.price })),
+      const result = await api.post('/sales', {
+        customer_name: customer.name || '',
+        customer_phone: customer.phone || '',
+        items: cart.map(i => ({ product_id: i._id, quantity: i.qty, unit_price: i.price })),
+        discount,
+        discount_type: 'percentage',
+        payment_method: paymentMethod,
+        payment_status: 'paid',
+      });
+      const invoiceNo = result?.data?.sale?.invoice_no || 'INV-' + Date.now();
+      setLastSale({
+        invoiceNo,
+        date: new Date().toLocaleString(),
+        customerName: customer.name,
+        items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
         subtotal, discount, discountAmount: discountAmt, total,
         paymentMethod, amountReceived: received, change: received - total,
-        customer: customer.name ? customer : undefined,
-      };
-      const result = await api.post('/sales', saleData);
-      setLastSale(result?.sale || { ...saleData, invoiceNo: result?.invoiceNo || 'INV-' + Date.now(), createdAt: new Date() });
+        isShortPayment: false, debtAmount: 0,
+      });
       setCart([]); setDiscount(0); setAmountReceived(''); setCustomer({ name: '', phone: '' });
       setReceiptModal(true);
-      toast.success('Sale completed!');
+      toast.success(`Sale completed! Invoice: ${invoiceNo}`);
     } catch (err) { toast.error(err?.message || 'Failed to complete sale'); } finally { setLoading(false); }
   };
 
   const handleShortPayment = async () => {
     if (cart.length === 0) { toast.error('Cart is empty'); return; }
-    if (!shortPayData.customerName) { toast.error('Customer name required'); return; }
+    if (!shortPayData.customerName.trim()) { toast.error('Customer name is required'); return; }
     const paid = parseFloat(shortPayData.amountPaid || 0);
     const debt = total - paid;
+    if (paid <= 0) { toast.error('Amount paid must be greater than 0'); return; }
     if (debt <= 0) { toast.error('Use Complete Sale for full payment'); return; }
     setLoading(true);
     try {
-      const saleData = {
-        items: cart.map(i => ({ product: i._id, name: i.name, qty: i.qty, price: i.price })),
+      const result = await api.post('/sales', {
+        customer_name: shortPayData.customerName,
+        customer_phone: shortPayData.customerPhone,
+        items: cart.map(i => ({ product_id: i._id, quantity: i.qty, unit_price: i.price })),
+        discount,
+        discount_type: 'percentage',
+        payment_method: paymentMethod,
+        payment_status: 'partial',
+        total_amount: paid,
+        due_date: shortPayData.dueDate || undefined,
+      });
+      const invoiceNo = result?.data?.sale?.invoice_no || 'INV-' + Date.now();
+      setLastSale({
+        invoiceNo,
+        date: new Date().toLocaleString(),
+        customerName: shortPayData.customerName,
+        items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
         subtotal, discount, discountAmount: discountAmt, total,
         paymentMethod, amountReceived: paid, change: 0,
         isShortPayment: true, debtAmount: debt,
-        customer: { name: shortPayData.customerName, phone: shortPayData.customerPhone, dueDate: shortPayData.dueDate },
-      };
-      const result = await api.post('/sales', saleData);
-      setLastSale(result?.sale || { ...saleData, invoiceNo: 'INV-' + Date.now(), createdAt: new Date() });
+      });
       setCart([]); setDiscount(0); setAmountReceived(''); setCustomer({ name: '', phone: '' });
       setShortPayModal(false);
       setShortPayData({ amountPaid: '', dueDate: '', customerName: '', customerPhone: '' });
       setReceiptModal(true);
-      toast.success('Sale recorded with outstanding debt');
-    } catch (err) { toast.error(err?.message || 'Failed to process'); } finally { setLoading(false); }
+      toast.success(`Sale recorded! Outstanding: GH₵${debt.toFixed(2)}`);
+    } catch (err) { toast.error(err?.message || 'Failed to process short payment'); } finally { setLoading(false); }
   };
 
   return (

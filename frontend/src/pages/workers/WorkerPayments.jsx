@@ -24,7 +24,7 @@ export default function WorkerPayments() {
     setLoading(true);
     try {
       const data = await api.get('/worker-payments');
-      setPayments(data?.payments || data || []);
+      setPayments(Array.isArray(data?.data) ? data.data : []);
     } catch { setPayments([]); } finally { setLoading(false); }
   };
 
