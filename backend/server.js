@@ -226,6 +226,11 @@ const seedDatabase = async () => {
       if (!existing) {
         await User.create(userData);
         console.log(`✓ Created user: ${userData.username} (${userData.role})`);
+      } else {
+        // Always reset password so demo credentials stay correct after redeployment
+        existing.password = userData.password;
+        await existing.save();
+        console.log(`✓ Reset password: ${userData.username}`);
       }
     }
 
