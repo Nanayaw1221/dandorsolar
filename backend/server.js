@@ -221,17 +221,24 @@ const seedDatabase = async () => {
       },
     ];
 
+    console.log('[Seed] Syncing demo users...');
     for (const userData of usersToSeed) {
-      const existing = await User.findOne({ username: userData.username });
-      if (!existing) {
-        await User.create(userData);
-        console.log(`✓ Created user: ${userData.username} (${userData.role})`);
-      } else {
-        // Always reset password so demo credentials stay correct after redeployment
-        existing.password = userData.password;
-        await existing.save();
-        console.log(`✓ Reset password: ${userData.username}`);
-      }
+      // Hash the password directly — bypasses pre-save hook to guarantee correctness
+      const hashedPassword = await bcrypt.hash(userData.password, 12);
+      await User.findOneAndUpdate(
+        { username: userData.username },
+        {
+          $set: {
+            username: userData.username,
+            email: userData.email,
+            password: hashedPassword,
+            role: userData.role,
+            is_active: true,
+          },
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      console.log(`[Seed] ✓ User ready: ${userData.username} / ${userData.password} (${userData.role})`);
     }
 
     // ── Seed Settings ──
